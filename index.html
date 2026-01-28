@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ACCESS</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: #cfcfcf;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.prompt {
+    font-size: 20px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+input {
+    background: transparent;
+    border: 1px solid #444;
+    color: #eee;
+    padding: 10px;
+    width: 260px;
+    font-size: 16px;
+    outline: none;
+    text-align: center;
+    caret-color: red;
+}
+
+.response {
+    margin-top: 15px;
+    font-size: 14px;
+    height: 18px;
+}
+
+.bottom-left {
+    position: fixed;
+    bottom: 8px;
+    left: 8px;
+    font-size: 11px;
+    color: #444;
+    opacity: 0.7;
+}
+
+/* TYPEWRITER */
+.typewriter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    white-space: nowrap;
+    color: #cfcfcf;
+}
+
+/* HIJACK */
+.hijack-text {
+    color: red;
+    font-weight: bold;
+}
+
+.hijack-label {
+    position: fixed;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: red;
+    font-size: 16px;
+}
+
+/* IMAGE FLICKER */
+.flicker-image {
+    position: fixed;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    animation: flickerImage 0.045s infinite;
+}
+
+@keyframes flickerImage {
+    0% { opacity: 0; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="login">
+    <div class="prompt">ENTER PASSWORD</div>
+    <input id="pw" type="password">
+    <div class="response" id="response"></div>
+</div>
+
+<div class="bottom-left">Recording inputs</div>
+
+<script>
+const correct = "dontspeakoutloud";
+const input = document.getElementById("pw");
+const response = document.getElementById("response");
+
+function typeText(text, speed = 50, callback) {
+    const el = document.createElement("div");
+    el.className = "typewriter";
+    document.body.appendChild(el);
+
+    let i = 0;
+    const interval = setInterval(() => {
+        el.textContent += text[i];
+        i++;
+        if (i >= text.length) {
+            clearInterval(interval);
+            if (callback) callback(el);
+        }
+    }, speed);
+    return el;
+}
+
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && input.value === correct) {
+        response.textContent = "Something tells you that was right...";
+
+        setTimeout(() => {
+            document.body.innerHTML = "";
+            document.body.style.background = "#000";
+
+            // FIRST MESSAGE
+            typeText("You're not supposed to be here.", 60, el => {
+
+                // BRIEF IMAGE FLICKER AT END
+                const flickerImg = document.createElement("div");
+                flickerImg.className = "flicker-image";
+                flickerImg.style.backgroundImage =
+                  "url('https://raw.githubusercontent.com/AC1DST4R/11aaH4780871308s7796s407q21375281login-03f99183z-206210391442739c/refs/heads/main/Screenshot%202026-01-11%20222347.png')";
+                document.body.appendChild(flickerImg);
+
+                setTimeout(() => {
+                    flickerImg.remove();
+                    el.remove();
+
+                    // URGENT MESSAGE (still normal color)
+                    const urgent = typeText(
+                        "DON'T MOVE. HE'S WATCHING US...",
+                        30,
+                        () => {
+                            // HIJACK
+                            urgent.classList.add("hijack-text");
+
+                            const hijack = document.createElement("div");
+                            hijack.className = "hijack-label";
+                            hijack.textContent = "MESSAGE INTERCEPTION";
+                            document.body.appendChild(hijack);
+
+                            setTimeout(() => {
+                                urgent.textContent =
+                                    "I can see your face behind that screen";
+
+                                setTimeout(() => {
+                                    document.body.innerHTML = "";
+                                    window.location.replace = "about:blank";
+;
+                                }, 1200);
+                            }, 900);
+                        }
+                    );
+
+                }, 250); // brief flicker duration
+            });
+
+        }, 3000);
+    }
+
+});
+</script>
+
+</body>
+</html>
