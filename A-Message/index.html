@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typewriter</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #container {
+      font-size: 24px;
+      white-space: pre-wrap;
+      position: relative;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      to { visibility: hidden; }
+    }
+
+    /* Pixel distortion glitch */
+    .glitch {
+      animation: glitch 0.12s steps(2) 8;
+    }
+
+    @keyframes glitch {
+      0% {
+        transform: translate(0);
+        filter: none;
+      }
+      25% {
+        transform: translate(-2px, 1px);
+        filter: contrast(140%) saturate(180%) blur(0.6px);
+      }
+      50% {
+        transform: translate(2px, -1px);
+        filter: contrast(180%) saturate(200%) blur(1px);
+      }
+      75% {
+        transform: translate(-1px, 2px);
+        filter: contrast(130%) saturate(160%) blur(0.4px);
+      }
+      100% {
+        transform: translate(0);
+        filter: none;
+      }
+    }
+
+    /* Fade to red */
+    .fade-red {
+      color: red;
+      transition: opacity 2s, color 2s;
+      opacity: 0;
+    }
+
+    .fade-out {
+      transition: opacity 2s;
+      opacity: 0;
+    }
+
+    em {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <span id="text"></span><span id="cursor" class="cursor">_</span>
+</div>
+
+<script>
+  const NORMAL_SPEED = 60;
+  const SLOW_SPEED = 250;
+  const SENTENCE_DELAY = 2000;
+
+  const sentences = [
+    { text: "John?" },
+    { text: "Is that you?" },
+    { text: "I told you not to come here I-It's not safe." },
+    { text: "You're endangering yourself, John." },
+    {
+      parts: [
+        { text: "I-I can't loose you too. Not like " },
+        { text: "Him", italic: true }
+      ]
+    },
+    { text: "Please. Go away John." },
+    { text: "It doesn't have to be this way." },
+    { text: "...", speed: SLOW_SPEED },
+    { text: "I remember everything he said." },
+    { text: "About you." },
+    { text: "About me." },
+    { text: "About the World." },
+    { text: "He told me it was all a sick game.", glitch: true },
+    { text: "And I believed him." },
+    { text: "I was stupid to have believed him." },
+
+    { text: "Get out of here John." },
+    { text: "I need to fix this myself." },
+    { text: "You're not involved in this." },
+    { text: "It's just between me and him." },
+    { text: "Not only did you lie to me, John." },
+    { text: "He did too.", final: true }
+  ];
+
+  const container = document.getElementById("container");
+  const textElement = document.getElementById("text");
+  const cursor = document.getElementById("cursor");
+
+  let sentenceIndex = 0;
+  let partIndex = 0;
+  let charIndex = 0;
+
+  function typeSentence() {
+    textElement.innerHTML = "";
+    partIndex = 0;
+    charIndex = 0;
+    typePart();
+  }
+
+  function typePart() {
+    const sentence = sentences[sentenceIndex];
+    const parts = sentence.parts || [sentence];
+
+    if (partIndex >= parts.length) {
+      if (sentence.glitch) {
+        container.classList.add("glitch");
+        setTimeout(() => container.classList.remove("glitch"), 1000);
+      }
+
+      if (sentence.final) {
+        cursor.style.display = "none";
+        setTimeout(finalFade, 2000);
+        return;
+      }
+
+      sentenceIndex++;
+      if (sentenceIndex < sentences.length) {
+        setTimeout(typeSentence, SENTENCE_DELAY);
+      }
+      return;
+    }
+
+    const part = parts[partIndex];
+    const speed = part.speed || sentence.speed || NORMAL_SPEED;
+    const span = document.createElement(part.italic ? "em" : "span");
+    textElement.appendChild(span);
+
+    function typeChar() {
+      if (charIndex < part.text.length) {
+        span.textContent += part.text[charIndex];
+        charIndex++;
+        setTimeout(typeChar, speed);
+      } else {
+        charIndex = 0;
+        partIndex++;
+        typePart();
+      }
+    }
+
+    typeChar();
+  }
+
+  function finalFade() {
+    textElement.innerHTML = "";
+
+    const normal = document.createElement("span");
+    normal.textContent = "He did ";
+    textElement.appendChild(normal);
+
+    const too = document.createElement("span");
+    too.textContent = "too";
+    textElement.appendChild(too);
+
+    setTimeout(() => {
+      normal.classList.add("fade-red");
+    }, 2000);
+
+    setTimeout(() => {
+      normal.classList.add("fade-out");
+      too.classList.add("fade-out");
+    }, 4000);
+  }
+
+  typeSentence();
+</script>
+
+</body>
+</html>
